@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import WordCloud from "../wordCloud";
 
 export default function HotTopicsCard() {
   return (
@@ -16,7 +17,9 @@ export default function HotTopicsCard() {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="pl-2">WORD CLOUD</CardContent>
+      <CardContent>
+        <WordCloud />
+      </CardContent>
     </Card>
   );
 }
