@@ -2,6 +2,7 @@ import { getAuthSession } from "@/lib/nextAuth";
 import Link from "next/link";
 import SignInButton from "./signInButton";
 import UserAccountNav from "./userAccountNav";
+import ThemToggle from "./themeToggle";
 
 export default async function Navbar() {
   const session = await getAuthSession();
@@ -15,12 +16,17 @@ export default async function Navbar() {
             Quizardry
           </p>
         </Link>
-        <div className="flex items-center">
-          {session?.user ? (
-            <UserAccountNav user={session.user} />
-          ) : (
-            <SignInButton text="Sign In" />
-          )}
+
+        <div className="flex items-center gap-3">
+          <ThemToggle />
+
+          <div className="flex items-center">
+            {session?.user ? (
+              <UserAccountNav user={session.user} />
+            ) : (
+              <SignInButton text="Sign In" />
+            )}
+          </div>
         </div>
       </div>
     </div>
