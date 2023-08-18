@@ -6,7 +6,6 @@ import ThemToggle from "./themeToggle";
 
 export default async function Navbar() {
   const session = await getAuthSession();
-  console.log(session);
 
   return (
     <div className="fixed inset-x-0 top-0 z-[10] h-fit border-b border-zinc-300 bg-white py-2 dark:bg-gray-950">

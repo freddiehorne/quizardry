@@ -37,7 +37,9 @@ export default function UserAccountNav({
 
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/">Hello</Link>
+          <Link href="/" className="cursor-pointer">
+            Hello
+          </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -48,7 +50,7 @@ export default function UserAccountNav({
             signOut().catch(console.error);
           }}
         >
-          Sign Out <LogOut className="ml-1 h-4" />
+          Sign Out <LogOut size={14} className="ml-1" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
