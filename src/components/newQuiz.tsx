@@ -22,24 +22,13 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { BookOpen, CopyCheck } from "lucide-react";
 import { Separator } from "./ui/separator";
+import { newQuizSchema } from "@/schemas";
 
-type FormValues = z.infer<typeof schema>;
-
-const schema = z.object({
-  topic: z
-    .string()
-    .min(4, { message: "Topic must be at least 4 characters long" })
-    .max(50),
-  type: z.enum(["multipleChoice", "openEnded"]),
-  amount: z.coerce
-    .number()
-    .min(1, { message: "Must be at least 1 question" })
-    .max(10, { message: "Maximum of 10 questions" }),
-});
+type FormValues = z.infer<typeof newQuizSchema>;
 
 export default function NewQuiz() {
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(newQuizSchema),
     defaultValues: {
       topic: "",
       type: "multipleChoice",
