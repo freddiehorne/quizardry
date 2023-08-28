@@ -1,6 +1,7 @@
 import Providers from "@/components/providers";
 import Navbar from "@/components/navbar";
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -23,6 +24,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

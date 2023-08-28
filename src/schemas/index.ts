@@ -13,3 +13,8 @@ export const newQuizSchema = z.object({
     .min(1, { message: "Must be at least 1 question" })
     .max(10, { message: "Maximum of 10 questions" }),
 });
+
+export const checkAnswerSchema = z.object({
+  questionId: z.string(),
+  userAnswer: z.string(),
+});
