@@ -4,11 +4,10 @@ import { newQuizSchema } from "@/schemas";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-export const POST = async (req: Request, res: Response) => {
+export const POST = async (req: Request) => {
   try {
     // below auth code is commented out because it is not working, not sure why yet...
     // const session = await getAuthSession();
-    // console.log("session", session);
 
     // if (!session?.user) {
     //   return NextResponse.json(
@@ -24,7 +23,7 @@ export const POST = async (req: Request, res: Response) => {
     const body = await req.json();
     const { type, topic, amount } = newQuizSchema.parse(body);
 
-    let questions: any;
+    let questions: { question: string; answer: string }[] = [];
     if (type === "openEnded") {
       questions = await strict_output(
         "You are a helpful AI that is able to generate a pair of question and answers, the length of each answer should not be more than 15 words, store all the pairs of answers and questions in a JSON array",
@@ -53,7 +52,7 @@ export const POST = async (req: Request, res: Response) => {
     }
     return NextResponse.json(
       {
-        questions: questions,
+        questions,
       },
       {
         status: 200,

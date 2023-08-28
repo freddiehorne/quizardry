@@ -18,13 +18,14 @@ type OpenEndedQuestion = {
   answer: string;
 };
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
+
     if (!session?.user) {
       return NextResponse.json(
         {
-          error: "You must be logged in",
+          error: "You must be logged in to create a game",
         },
         {
           status: 401,
@@ -34,6 +35,7 @@ export async function POST(req: Request, res: Response) {
 
     const body = await req.json();
     const { amount, topic, type } = newQuizSchema.parse(body);
+
     const game = await prisma.game.create({
       data: {
         gameType: type,
@@ -43,47 +45,54 @@ export async function POST(req: Request, res: Response) {
       },
     });
 
-    const { data } = await axios.post(`${process.env.API_URL}/api/questions`, {
-      amount,
-      topic,
-      type,
-    });
+    const { data } = await axios.post(
+      `${process.env.API_URL as string}/api/questions`,
+      {
+        amount,
+        topic,
+        type,
+      },
+    );
 
     if (type === "multipleChoice") {
-      let multipleData = data.map((question: MultipleChoiceQuestion) => {
-        const options = [
-          question.answer,
-          question.option1,
-          question.option2,
-          question.option3,
-        ];
-        let shuffledOptions = options.sort(() => Math.random() - 0.5);
-        return {
-          question: question.question,
-          answer: question.answer,
-          options: JSON.stringify(shuffledOptions),
-          gameId: game.id,
-          questionType: "multipleChoice",
-        };
-      });
+      const multipleData = data.questions.map(
+        (question: MultipleChoiceQuestion) => {
+          const options = [
+            question.answer,
+            question.option1,
+            question.option2,
+            question.option3,
+          ];
+          let shuffledOptions = options.sort(() => Math.random() - 0.5);
+          return {
+            question: question.question,
+            answer: question.answer,
+            options: JSON.stringify(shuffledOptions),
+            gameId: game.id,
+            questionType: "multipleChoice",
+          };
+        },
+      );
       await prisma.question.createMany({
         data: multipleData,
       });
     } else if (type === "openEnded") {
-      let openEndedData = data.map((question: OpenEndedQuestion) => {
-        return {
-          question: question.question,
-          answer: question.answer,
-          gameId: game.id,
-          questionType: "openEnded",
-        };
-      });
+      const openEndedData = data.questions.map(
+        (question: OpenEndedQuestion) => {
+          return {
+            question: question.question,
+            answer: question.answer,
+            gameId: game.id,
+            questionType: "openEnded",
+          };
+        },
+      );
       await prisma.question.createMany({
         data: openEndedData,
       });
     }
 
-    return NextResponse.json({ gameId: game.id });
+    return NextResponse.json({ gameId: game.id }, { status: 200 });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
@@ -95,8 +104,13 @@ export async function POST(req: Request, res: Response) {
         },
       );
     }
-    return NextResponse.json({
-      error: "Something went wrong",
-    });
+    return NextResponse.json(
+      {
+        error,
+      },
+      {
+        status: 500,
+      },
+    );
   }
 }

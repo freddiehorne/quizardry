@@ -23,10 +23,38 @@ import { Input } from "./ui/input";
 import { BookOpen, CopyCheck } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { newQuizSchema } from "@/schemas";
+import { UseMutationResult, useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 type FormValues = z.infer<typeof newQuizSchema>;
 
+type GameId = {
+  gameId: string;
+};
+
 export default function NewQuiz() {
+  const router = useRouter();
+
+  const {
+    mutate: getQuestions,
+    isLoading,
+  }: UseMutationResult<GameId, Error, FormValues> = useMutation({
+    mutationFn: async ({
+      amount,
+      topic,
+      type,
+    }: FormValues): Promise<GameId> => {
+      const { data } = await axios.post("api/game", {
+        amount,
+        topic,
+        type,
+      });
+
+      return data;
+    },
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(newQuizSchema),
     defaultValues: {
@@ -37,7 +65,25 @@ export default function NewQuiz() {
   });
 
   const onSubmit = (values: FormValues) => {
-    alert(JSON.stringify(values, null, 2));
+    getQuestions(
+      {
+        amount: values.amount,
+        topic: values.topic,
+        type: values.type,
+      },
+      {
+        onSuccess: ({ gameId }) => {
+          if (form.getValues("type") === "multipleChoice") {
+            router.push(`/play/multipleChoice/${gameId}`);
+          } else if (form.getValues("type") === "openEnded") {
+            router.push(`/play/openEnded/${gameId}`);
+          }
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      },
+    );
   };
 
   // rerender to update the form state
@@ -123,7 +169,9 @@ export default function NewQuiz() {
                 </div>
               </FormItem>
 
-              <Button type="submit">Submit</Button>
+              <Button disabled={isLoading} type="submit">
+                Submit
+              </Button>
             </form>
           </Form>
         </CardContent>
