@@ -74,9 +74,9 @@ export default function NewQuiz() {
       {
         onSuccess: ({ gameId }) => {
           if (form.getValues("type") === "multipleChoice") {
-            router.push(`/play/multipleChoice/${gameId}`);
+            router.push(`/play/multiple-choice/${gameId}`);
           } else if (form.getValues("type") === "openEnded") {
-            router.push(`/play/openEnded/${gameId}`);
+            router.push(`/play/open-ended/${gameId}`);
           }
         },
         onError: (error) => {

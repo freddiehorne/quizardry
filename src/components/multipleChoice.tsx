@@ -5,13 +5,14 @@ import axios from "axios";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { UseMutationResult, useMutation } from "@tanstack/react-query";
 import { Game, Question } from "@prisma/client";
 import { Button, buttonVariants } from "./ui/button";
+import { differenceInSeconds } from "date-fns";
 import { checkAnswerSchema } from "@/schemas";
 import { useToast } from "./ui/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { z } from "zod";
 
 type MultipleChoiceProps = {
@@ -30,6 +31,7 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [quizHasEnded, setQuizHasEnded] = useState(false);
+  const [now, setNow] = useState(new Date());
 
   const { toast } = useToast();
 
@@ -85,11 +87,19 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
     });
   }, [checkAnswer, game.questions.length, isChecking, questionIndex, toast]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!quizHasEnded) setNow(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [quizHasEnded]);
+
   if (quizHasEnded) {
     return (
       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col justify-center">
         <div className="mt-2 whitespace-nowrap rounded-md bg-green-500 px-4 py-2 font-semibold text-white">
-          You Completed in xx:yy
+          You Completed in{" "}
+          {formatTime(differenceInSeconds(now, game.timeStarted))}
         </div>
         <Link
           href={`/statistics/${game.id}`}
@@ -114,7 +124,7 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
           </p>
           <div className="flex py-1 text-lg text-slate-400">
             <Timer className="mr-2" />
-            00:00
+            {formatTime(differenceInSeconds(now, game.timeStarted))}
           </div>
         </div>
         <MultipleChoiceCounter
