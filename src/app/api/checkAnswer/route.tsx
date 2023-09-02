@@ -1,3 +1,4 @@
+import { compareTwoStrings } from "string-similarity";
 import { checkAnswerSchema } from "@/schemas";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -50,6 +51,29 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           isCorrect,
+        },
+        {
+          status: 200,
+        },
+      );
+    } else if (question.questionType === "openEnded") {
+      let percentageCorrect = compareTwoStrings(
+        question.answer.toLowerCase().trim(),
+        userAnswer.toLowerCase().trim(),
+      );
+      percentageCorrect = Math.round(percentageCorrect * 100);
+      await prisma.question.update({
+        where: {
+          id: questionId,
+        },
+        data: {
+          percentageCorrect,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          percentageCorrect,
         },
         {
           status: 200,
