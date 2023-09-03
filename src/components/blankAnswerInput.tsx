@@ -1,7 +1,13 @@
 import keyword_extractor from "keyword-extractor";
 import { useMemo } from "react";
 
-export default function BlankAnswerInput({ answer }: { answer: string }) {
+export default function BlankAnswerInput({
+  answer,
+  setBlankAnswer,
+}: {
+  answer: string;
+  setBlankAnswer: (answer: string) => void;
+}) {
   const BLANK = "_______";
 
   const keywords = useMemo(() => {
@@ -19,8 +25,9 @@ export default function BlankAnswerInput({ answer }: { answer: string }) {
     const answerWithBlanks = keywords.reduce((acc, keyword) => {
       return acc.replace(keyword, BLANK);
     }, answer);
+    setBlankAnswer(answerWithBlanks);
     return answerWithBlanks;
-  }, [answer, keywords]);
+  }, [answer, keywords, setBlankAnswer]);
 
   return (
     <div className="mt-4 flex w-full justify-start">
@@ -31,6 +38,7 @@ export default function BlankAnswerInput({ answer }: { answer: string }) {
               {part}
               {i !== blankedOutAnswer.split(BLANK).length - 1 && (
                 <input
+                  id="user-input"
                   type="text"
                   className="mx-1 h-8 w-32 border-b-2 border-black text-center focus:border-2 focus:border-b-4 focus:outline-none dark:border-white"
                 />

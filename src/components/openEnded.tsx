@@ -5,16 +5,17 @@ import axios from "axios";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { UseMutationResult, useMutation } from "@tanstack/react-query";
-import { ChevronRight, Loader2, Timer } from "lucide-react";
+import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import { differenceInSeconds } from "date-fns";
 import { checkAnswerSchema } from "@/schemas";
 import { Game, Question } from "@prisma/client";
-import { formatTime } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { useToast } from "./ui/use-toast";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { z } from "zod";
+import Link from "next/link";
 
-type OPenEndedProps = {
+type OpenEndedProps = {
   game: Game & { questions: Pick<Question, "id" | "question" | "answer">[] };
 };
 
@@ -24,9 +25,10 @@ type CheckAnswerResponse = {
   percentageCorrect: number;
 };
 
-export default function OpenEnded({ game }: OPenEndedProps) {
+export default function OpenEnded({ game }: OpenEndedProps) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [quizHasEnded, setQuizHasEnded] = useState(false);
+  const [blankAnswer, setBlankAnswer] = useState("");
   const [now, setNow] = useState(new Date());
 
   const { toast } = useToast();
@@ -41,9 +43,16 @@ export default function OpenEnded({ game }: OPenEndedProps) {
   }: UseMutationResult<CheckAnswerResponse, Error, CheckAnswerRequest> =
     useMutation({
       mutationFn: async (): Promise<CheckAnswerResponse> => {
+        let filledAnswer = blankAnswer;
+        document.querySelectorAll("#user-input").forEach((input) => {
+          // @ts-expect-error
+          filledAnswer = filledAnswer.replace("_______", input.value);
+          // @ts-expect-error
+          input.value = "";
+        });
         const { data } = await axios.post("/api/checkAnswer", {
           questionId: currentQuestion.id,
-          userAnswer: "",
+          userAnswer: filledAnswer,
         });
 
         return data;
@@ -73,6 +82,24 @@ export default function OpenEnded({ game }: OPenEndedProps) {
     }, 1000);
     return () => clearInterval(interval);
   }, [quizHasEnded]);
+
+  if (quizHasEnded) {
+    return (
+      <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col justify-center">
+        <div className="mt-2 whitespace-nowrap rounded-md bg-green-500 px-4 py-2 font-semibold text-white">
+          You Completed in{" "}
+          {formatTime(differenceInSeconds(now, game.timeStarted))}
+        </div>
+        <Link
+          href={`/statistics/${game.id}`}
+          className={cn(buttonVariants({ size: "lg" }), "mt-2")}
+        >
+          View Statistics
+          <BarChart className="ml-2 h-4 w-4" />
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute left-1/2 top-1/2 w-[90vw] max-w-4xl -translate-x-1/2 -translate-y-1/2 md:w-[80vw]">
@@ -110,7 +137,10 @@ export default function OpenEnded({ game }: OPenEndedProps) {
       </Card>
 
       <div className="mt-4 flex w-full flex-col items-center justify-center">
-        <BlankAnswerInput answer={currentQuestion.answer} />
+        <BlankAnswerInput
+          answer={currentQuestion.answer}
+          setBlankAnswer={setBlankAnswer}
+        />
 
         <Button
           variant="default"
