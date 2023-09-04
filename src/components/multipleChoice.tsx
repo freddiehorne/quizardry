@@ -90,7 +90,7 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
         } else {
           toast({
             title: "Wrong Answer",
-            description: `The right answer was ${currentQuestion.answer}`,
+            description: `The correct answer is ${currentQuestion.answer}`,
             variant: "destructive",
           });
           setWrongAnswers((prev) => prev + 1);

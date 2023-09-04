@@ -68,7 +68,7 @@ export default async function StatisticsPage({ params: { gameId } }: Props) {
             timeEnded={game.timeEnded!}
           />
         </div>
-        <QuestionsList />
+        <QuestionsList questions={game.questions} />
       </div>
     </>
   );

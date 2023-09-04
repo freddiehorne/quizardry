@@ -1,4 +1,4 @@
-import stringComparison from "string-comparison";
+import { compareTwoStrings } from "string-similarity";
 import { checkAnswerSchema } from "@/schemas";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         },
       );
     } else if (question.questionType === "openEnded") {
-      let percentageCorrect = stringComparison.cosine.similarity(
+      let percentageCorrect = compareTwoStrings(
         question.answer.toLowerCase().trim(),
         userAnswer.toLowerCase().trim(),
       );
