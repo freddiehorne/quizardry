@@ -22,10 +22,31 @@ export default async function StatisticsPage({ params: { gameId } }: Props) {
     where: {
       id: gameId,
     },
+    include: {
+      questions: true,
+    },
   });
   if (!game) {
-    return redirect("/");
+    return redirect("/quiz");
   }
+
+  let accuracy: number = 0;
+
+  if (game.gameType === "multipleChoice") {
+    let totalCorrect = game.questions.reduce((acc, question) => {
+      if (question.isCorrect) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
+    accuracy = (totalCorrect / game.questions.length) * 100;
+  } else if (game.gameType === "openEnded") {
+    let totalPercentage = game.questions.reduce((acc, question) => {
+      return acc + (question.percentageCorrect ?? 0);
+    }, 0);
+    accuracy = totalPercentage / game.questions.length;
+  }
+  accuracy = Math.round(accuracy * 100) / 100;
 
   return (
     <>
@@ -40,9 +61,12 @@ export default async function StatisticsPage({ params: { gameId } }: Props) {
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-7">
-          <ResultsCard accuracy={35} />
-          <AccuracyCard accuracy={35} />
-          <TimeTakenCard timeStarted={new Date()} timeEnded={new Date()} />
+          <ResultsCard accuracy={accuracy} />
+          <AccuracyCard accuracy={accuracy} />
+          <TimeTakenCard
+            timeStarted={game.timeStarted}
+            timeEnded={game.timeEnded!}
+          />
         </div>
         <QuestionsList />
       </div>

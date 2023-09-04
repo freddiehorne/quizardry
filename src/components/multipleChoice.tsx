@@ -7,12 +7,12 @@ import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { UseMutationResult, useMutation } from "@tanstack/react-query";
-import { Game, Question } from "@prisma/client";
 import { Button, buttonVariants } from "./ui/button";
 import { differenceInSeconds } from "date-fns";
 import { checkAnswerSchema } from "@/schemas";
-import { useToast } from "./ui/use-toast";
+import { Game, Question } from "@prisma/client";
 import { cn, formatTime } from "@/lib/utils";
+import { useToast } from "./ui/use-toast";
 import { z } from "zod";
 
 type MultipleChoiceProps = {
@@ -58,6 +58,15 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
       },
     });
 
+  const { mutate: setTimeEnded } = useMutation({
+    mutationFn: async (timeEnded: Date) => {
+      await axios.post("/api/game/end", {
+        gameId: game.id,
+        timeEnded,
+      });
+    },
+  });
+
   const handleNext = useCallback(() => {
     if (isChecking) return;
     // @ts-expect-error
@@ -80,12 +89,20 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
         }
         if (questionIndex === game.questions.length - 1) {
           setQuizHasEnded(true);
+          setTimeEnded(new Date());
           return;
         }
         setQuestionIndex((prev) => prev + 1);
       },
     });
-  }, [checkAnswer, game.questions.length, isChecking, questionIndex, toast]);
+  }, [
+    checkAnswer,
+    game.questions.length,
+    isChecking,
+    questionIndex,
+    setTimeEnded,
+    toast,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => {

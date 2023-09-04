@@ -4,14 +4,14 @@ import BlankAnswerInput from "./blankAnswerInput";
 import axios from "axios";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { UseMutationResult, useMutation } from "@tanstack/react-query";
 import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
+import { UseMutationResult, useMutation } from "@tanstack/react-query";
+import { Button, buttonVariants } from "./ui/button";
 import { differenceInSeconds } from "date-fns";
 import { checkAnswerSchema } from "@/schemas";
 import { Game, Question } from "@prisma/client";
 import { cn, formatTime } from "@/lib/utils";
 import { useToast } from "./ui/use-toast";
-import { Button, buttonVariants } from "./ui/button";
 import { z } from "zod";
 import Link from "next/link";
 
@@ -59,6 +59,15 @@ export default function OpenEnded({ game }: OpenEndedProps) {
       },
     });
 
+  const { mutate: setTimeEnded } = useMutation({
+    mutationFn: async (timeEnded: Date) => {
+      await axios.post("/api/game/end", {
+        gameId: game.id,
+        timeEnded,
+      });
+    },
+  });
+
   const handleNext = useCallback(() => {
     if (isChecking) return;
     // @ts-expect-error
@@ -69,12 +78,20 @@ export default function OpenEnded({ game }: OpenEndedProps) {
         });
         if (questionIndex === game.questions.length - 1) {
           setQuizHasEnded(true);
+          setTimeEnded(new Date());
           return;
         }
         setQuestionIndex((prev) => prev + 1);
       },
     });
-  }, [checkAnswer, game.questions.length, isChecking, questionIndex, toast]);
+  }, [
+    checkAnswer,
+    game.questions.length,
+    isChecking,
+    questionIndex,
+    setTimeEnded,
+    toast,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -116,10 +133,6 @@ export default function OpenEnded({ game }: OpenEndedProps) {
             {formatTime(differenceInSeconds(now, game.timeStarted))}
           </div>
         </div>
-        {/* <MultipleChoiceCounter
-          correctAnswers={correctAnswers}
-          wrongAnswers={wrongAnswers}
-        /> */}
       </div>
 
       <Card className="mt-4 w-full">
@@ -131,14 +144,14 @@ export default function OpenEnded({ game }: OpenEndedProps) {
             </div>
           </CardTitle>
           <CardDescription className="flex-grow text-lg">
-            {currentQuestion.question}
+            {currentQuestion?.question}
           </CardDescription>
         </CardHeader>
       </Card>
 
       <div className="mt-4 flex w-full flex-col items-center justify-center">
         <BlankAnswerInput
-          answer={currentQuestion.answer}
+          answer={currentQuestion?.answer}
           setBlankAnswer={setBlankAnswer}
         />
 

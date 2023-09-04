@@ -18,7 +18,7 @@ export default function TimeTakenCard({
       </CardHeader>
       <CardContent>
         <div className="text-sm font-medium">
-          {formatTime(differenceInSeconds(timeStarted, timeEnded))}
+          {formatTime(differenceInSeconds(timeEnded, timeStarted))}
         </div>
       </CardContent>
     </Card>

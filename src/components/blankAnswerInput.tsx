@@ -32,11 +32,11 @@ export default function BlankAnswerInput({
   return (
     <div className="mt-4 flex w-full justify-start">
       <p className="text-xl font-semibold">
-        {blankedOutAnswer.split(BLANK).map((part, i) => {
+        {blankedOutAnswer?.split(BLANK).map((part, i) => {
           return (
             <span key={i}>
               {part}
-              {i !== blankedOutAnswer.split(BLANK).length - 1 && (
+              {i !== blankedOutAnswer?.split(BLANK).length - 1 && (
                 <input
                   id="user-input"
                   type="text"
