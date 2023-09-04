@@ -4,7 +4,6 @@ import MultipleChoiceCounter from "./multipleChoiceCounter";
 import axios from "axios";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { UseMutationResult, useMutation } from "@tanstack/react-query";
 import { Button, buttonVariants } from "./ui/button";
@@ -14,6 +13,13 @@ import { Game, Question } from "@prisma/client";
 import { cn, formatTime } from "@/lib/utils";
 import { useToast } from "./ui/use-toast";
 import { z } from "zod";
+import {
+  BarChart,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Timer,
+} from "lucide-react";
 
 type MultipleChoiceProps = {
   game: Game & { questions: Pick<Question, "id" | "question" | "options">[] };
@@ -110,6 +116,24 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
     }, 1000);
     return () => clearInterval(interval);
   }, [quizHasEnded]);
+
+  if (game.questions.length === 0) {
+    return (
+      <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col justify-center gap-y-2">
+        <p>
+          There was an issue retrieving the questions. Please go back and try
+          again
+        </p>
+        <Link
+          href="/quiz"
+          className={cn(buttonVariants({ size: "lg" }), "mt-2")}
+        >
+          <ChevronLeft className="mr-2" />
+          Back
+        </Link>
+      </div>
+    );
+  }
 
   if (quizHasEnded) {
     return (

@@ -2893,6 +2893,11 @@ streamsearch@^1.1.0:
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-1.1.0.tgz#404dd1e2247ca94af554e841a8ef0eaa238da764"
   integrity sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
 
+string-comparison@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/string-comparison/-/string-comparison-1.2.0.tgz#c443c64180c550145b2e820ad95e86a4e09061b8"
+  integrity sha512-Gk7kK438mY/EpZ9iSL02yNCH+k05d2ktwBF6u4RAYzg4ilbp+VICHaui42ArDv63weIl+bZuyXTRYYhI76d+jA==
+
 string-similarity@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/string-similarity/-/string-similarity-4.0.4.tgz#42d01ab0b34660ea8a018da8f56a3309bb8b2a5b"
