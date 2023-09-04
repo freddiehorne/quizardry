@@ -28,6 +28,7 @@ export default async function MultipleChoicePage({
           id: true,
           question: true,
           options: true,
+          answer: true,
         },
       },
     },

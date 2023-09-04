@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 
 type MultipleChoiceProps = {
-  game: Game & { questions: Pick<Question, "id" | "question" | "options">[] };
+  game: Game & {
+    questions: Pick<Question, "id" | "question" | "answer" | "options">[];
+  };
 };
 
 type CheckAnswerRequest = z.infer<typeof checkAnswerSchema>;
@@ -88,7 +90,7 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
         } else {
           toast({
             title: "Wrong Answer",
-            description: "That's not the right answer",
+            description: `The right answer was ${currentQuestion.answer}`,
             variant: "destructive",
           });
           setWrongAnswers((prev) => prev + 1);
@@ -103,6 +105,7 @@ export default function MultipleChoice({ game }: MultipleChoiceProps) {
     });
   }, [
     checkAnswer,
+    currentQuestion.answer,
     game.questions.length,
     isChecking,
     questionIndex,
