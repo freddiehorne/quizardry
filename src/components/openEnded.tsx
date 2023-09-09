@@ -181,7 +181,7 @@ export default function OpenEnded({ game }: OpenEndedProps) {
 
         <Button
           variant="default"
-          className="mt-2"
+          className="mt-8"
           size="lg"
           onClick={() => handleNext()}
           disabled={isChecking}

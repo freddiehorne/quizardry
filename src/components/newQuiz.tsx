@@ -1,12 +1,18 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import Loading from "./loading";
+import axios from "axios";
+import { UseMutationResult, useMutation } from "@tanstack/react-query";
+import { BookOpen, CopyCheck } from "lucide-react";
+import { newQuizSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { Separator } from "./ui/separator";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -15,17 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { BookOpen, CopyCheck } from "lucide-react";
-import { Separator } from "./ui/separator";
-import { newQuizSchema } from "@/schemas";
-import { UseMutationResult, useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 type FormValues = z.infer<typeof newQuizSchema>;
 
@@ -35,6 +31,8 @@ type GameId = {
 
 export default function NewQuiz() {
   const router = useRouter();
+  const [isFinished, setIsFinished] = useState(false);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
 
   const {
     mutate: getQuestions,
@@ -65,6 +63,7 @@ export default function NewQuiz() {
   });
 
   const onSubmit = (values: FormValues) => {
+    setQuestionsLoading(true);
     getQuestions(
       {
         amount: values.amount,
@@ -73,13 +72,17 @@ export default function NewQuiz() {
       },
       {
         onSuccess: ({ gameId }) => {
-          if (form.getValues("type") === "multipleChoice") {
-            router.push(`/play/multiple-choice/${gameId}`);
-          } else if (form.getValues("type") === "openEnded") {
-            router.push(`/play/open-ended/${gameId}`);
-          }
+          setIsFinished(true);
+          setTimeout(() => {
+            if (form.getValues("type") === "multipleChoice") {
+              router.push(`/play/multiple-choice/${gameId}`);
+            } else if (form.getValues("type") === "openEnded") {
+              router.push(`/play/open-ended/${gameId}`);
+            }
+          }, 800);
         },
         onError: (error) => {
+          setQuestionsLoading(false);
           console.error(error);
         },
       },
@@ -88,6 +91,10 @@ export default function NewQuiz() {
 
   // rerender to update the form state
   form.watch();
+
+  if (questionsLoading) {
+    return <Loading finished={isFinished} />;
+  }
 
   return (
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -169,9 +176,7 @@ export default function NewQuiz() {
                 </div>
               </FormItem>
 
-              <Button disabled={isLoading} type="submit">
-                Submit
-              </Button>
+              <Button type="submit">Submit</Button>
             </form>
           </Form>
         </CardContent>

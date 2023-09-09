@@ -9,7 +9,7 @@ export default function ResultsCard({ accuracy }: { accuracy: number }) {
         <Award />
       </CardHeader>
       <CardContent className="flex h-3/5 flex-col items-center justify-center">
-        {accuracy > 75 && (
+        {accuracy >= 75 && (
           <>
             <Trophy className="mb-4" stroke="#FFD700" size={50} />
             <div className="flex flex-col text-2xl font-semibold text-[#FFD700]">
@@ -20,7 +20,7 @@ export default function ResultsCard({ accuracy }: { accuracy: number }) {
             </div>
           </>
         )}
-        {accuracy > 50 && accuracy <= 75 && (
+        {accuracy >= 50 && accuracy <= 74 && (
           <>
             <Trophy className="mb-4" stroke="#C0C0C0" size={50} />
             <div className="flex flex-col text-2xl font-semibold text-[#C0C0C0]">
@@ -31,7 +31,7 @@ export default function ResultsCard({ accuracy }: { accuracy: number }) {
             </div>
           </>
         )}
-        {accuracy > 25 && accuracy <= 50 && (
+        {accuracy > 25 && accuracy <= 49 && (
           <>
             <Trophy className="mb-4" stroke="#CD7F32" size={50} />
             <div className="flex flex-col text-2xl font-semibold text-[#CD7F32]">
