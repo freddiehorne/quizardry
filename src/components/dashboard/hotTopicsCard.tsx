@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db";
 import {
   Card,
   CardContent,
@@ -7,7 +8,12 @@ import {
 } from "../ui/card";
 import WordCloud from "../wordCloud";
 
-export default function HotTopicsCard() {
+export default async function HotTopicsCard() {
+  const topics = await prisma.topicCount.findMany({});
+  const formattedTopics = topics.map((topic) => ({
+    text: topic.topic,
+    value: topic.count,
+  }));
   return (
     <Card className="col-span-4">
       <CardHeader>
@@ -18,7 +24,7 @@ export default function HotTopicsCard() {
       </CardHeader>
 
       <CardContent>
-        <WordCloud />
+        <WordCloud topics={formattedTopics} />
       </CardContent>
     </Card>
   );

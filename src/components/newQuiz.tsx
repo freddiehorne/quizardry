@@ -29,7 +29,7 @@ type GameId = {
   gameId: string;
 };
 
-export default function NewQuiz() {
+export default function NewQuiz({ topicParam }: { topicParam: string }) {
   const router = useRouter();
   const [isFinished, setIsFinished] = useState(false);
   const [questionsLoading, setQuestionsLoading] = useState(false);
@@ -56,7 +56,7 @@ export default function NewQuiz() {
   const form = useForm<FormValues>({
     resolver: zodResolver(newQuizSchema),
     defaultValues: {
-      topic: "",
+      topic: topicParam,
       type: "multipleChoice",
       amount: 3,
     },
